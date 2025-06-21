@@ -10,6 +10,7 @@ function LoginRegister() {
 
     try {
       if (isLogin) {
+
         let email = e.target["email"]?.value;
         let password = e.target["password"]?.value;
 
@@ -23,7 +24,29 @@ function LoginRegister() {
         });
 
         const data = await response.json();
-        // console.log(data);
+
+        if (response.ok) {
+          sessionStorage.setItem("accessToken", data.token);
+          navigate("/dashboard")
+        } else {
+          alert(data.message || "Login failed.");
+        }
+      } else {
+
+        let name = e.target["name"]?.value;
+        let email = e.target["email"]?.value;
+        let password = e.target["password"]?.value;
+
+        const response = await fetch("https://reqres.in/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "reqres-free-v1"
+          },
+          body: JSON.stringify({ name, email, password })
+        })
+
+        const data = await response.json();
 
         if (response.ok) {
           sessionStorage.setItem("accessToken", data.token);
@@ -41,9 +64,7 @@ function LoginRegister() {
     //   let password = e.target["password"]?.value;
     //   console.log(email, password);
     // } else {
-    //   let name = e.target["name"]?.value;
-    //   let email = e.target["email"]?.value;
-    //   let password = e.target["password"]?.value;
+
     //   console.log(name, email, password);
     // }
   };
