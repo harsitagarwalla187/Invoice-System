@@ -5,18 +5,47 @@ function LoginRegister() {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLogin) {
-      let email = e.target["email"]?.value;
-      let password = e.target["password"]?.value;
-      console.log(email, password);
-    } else {
-      let name = e.target["name"]?.value;
-      let email = e.target["email"]?.value;
-      let password = e.target["password"]?.value;
-      console.log(name, email, password);
+
+    try {
+      if (isLogin) {
+        let email = e.target["email"]?.value;
+        let password = e.target["password"]?.value;
+
+        const response = await fetch("https://reqres.in/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "reqres-free-v1"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        // console.log(data);
+
+        if (response.ok) {
+          sessionStorage.setItem("accessToken", data.token);
+          navigate("/dashboard")
+        } else {
+          alert(data.message || "Login failed.");
+        }
+      }
+    } catch (error) {
+      console.error("Error during login: ", error);
+      alert("Something went wrong.");
     }
+    // if (isLogin) {
+    //   let email = e.target["email"]?.value;
+    //   let password = e.target["password"]?.value;
+    //   console.log(email, password);
+    // } else {
+    //   let name = e.target["name"]?.value;
+    //   let email = e.target["email"]?.value;
+    //   let password = e.target["password"]?.value;
+    //   console.log(name, email, password);
+    // }
   };
 
   return (
