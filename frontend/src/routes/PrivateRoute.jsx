@@ -4,7 +4,7 @@ const PrivateRoute = ({ children }) => {
 
      const token = sessionStorage.getItem("accessToken");
 
-     return token ? children : <Navigate to="/auth" />
+     return token ? children : <Navigate to="/LoginRegister" />
 }
 
 export default PrivateRoute

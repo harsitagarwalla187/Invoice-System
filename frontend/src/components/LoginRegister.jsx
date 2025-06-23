@@ -59,14 +59,6 @@ function LoginRegister() {
       console.error("Error during login: ", error);
       alert("Something went wrong.");
     }
-    // if (isLogin) {
-    //   let email = e.target["email"]?.value;
-    //   let password = e.target["password"]?.value;
-    //   console.log(email, password);
-    // } else {
-
-    //   console.log(name, email, password);
-    // }
   };
 
   return (
