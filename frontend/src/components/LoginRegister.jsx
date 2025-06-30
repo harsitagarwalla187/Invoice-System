@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,57 +8,46 @@ function LoginRegister() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
 
-    try {
-      if (isLogin) {
-
-        let email = e.target["email"]?.value;
-        let password = e.target["password"]?.value;
-
-        const response = await fetch("https://reqres.in/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": "reqres-free-v1"
-          },
-          body: JSON.stringify({ email, password })
+    if (isLogin) {
+      // LOGIN
+      try {
+        const res = await axios.post("http://localhost:8080/api/auth/login", {
+          email,
+          password,
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          sessionStorage.setItem("accessToken", data.token);
-          navigate("/dashboard")
-        } else {
-          alert(data.message || "Login failed.");
-        }
-      } else {
-
-        let name = e.target["name"]?.value;
-        let email = e.target["email"]?.value;
-        let password = e.target["password"]?.value;
-
-        const response = await fetch("https://reqres.in/api/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": "reqres-free-v1"
-          },
-          body: JSON.stringify({ name, email, password })
-        })
-
-        const data = await response.json();
-
-        if (response.ok) {
-          sessionStorage.setItem("accessToken", data.token);
-          navigate("/dashboard")
-        } else {
-          alert(data.message || "Login failed.");
-        }
+        // Save token
+        sessionStorage.setItem("accessToken", res.data.token);
+        navigate("/dashboard");
+      } catch (err) {
+        console.error(err);
+        alert("Login failed.");
       }
-    } catch (error) {
-      console.error("Error during login: ", error);
-      alert("Something went wrong.");
+    } else {
+      // REGISTER
+      const name = form.name.value;
+
+      console.log(name);
+      
+
+      try {
+        await axios.post("http://localhost:8080/api/auth/register", {
+          name,
+          email,
+          password,
+        });
+
+        // Auto-switch to login mode after register
+        setIsLogin(true);
+        alert("Registration successful. Please login.");
+      } catch (err) {
+        console.error(err);
+        alert("Registration failed.");
+      }
     }
   };
 
@@ -69,6 +59,7 @@ function LoginRegister() {
       >
         &larr; Back
       </button>
+
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
         <div className="flex justify-between mb-6">
           <button

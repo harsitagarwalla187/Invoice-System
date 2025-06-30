@@ -7,7 +7,6 @@ import Customer from "./components/dashboard/Customer"
 import Product from "./components/dashboard/Product"
 import InvoiceList from "./components/dashboard/InvoiceList"
 import NewInvoice from "./components/dashboard/NewInvoice"
-import Profile from "./components/dashboard/Profile"
 
 function App() {
   return <>
@@ -16,6 +15,8 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/LoginRegister" element={<LoginRegister />} />
+        <Route path="/invoice" element={<InvoiceList />} />
+
 
         {/* Protected Routes */}
         <Route
