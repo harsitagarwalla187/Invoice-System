@@ -14,11 +14,9 @@ import java.util.List;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    @Autowired CustomerService customerService;
-
-    @Autowired CompanyService companyService;
-
-    @Autowired JwtService jwtService;
+    @Autowired private CustomerService customerService;
+    @Autowired private CompanyService companyService;
+    @Autowired private JwtService jwtService;
 
     @PostMapping
     public Customer addCustomer(@RequestBody Customer customer, @RequestHeader("Authorization") String token) {

@@ -1,35 +1,61 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductModal from "./ProductModal";
-
-const initialProducts = [
-     {
-          id: 1,
-          name: "Laptop",
-          price: 75000,
-          description: "High performance laptop",
-     },
-     {
-          id: 2,
-          name: "Smartphone",
-          price: 25000,
-          description: "Latest Android phone",
-     },
-];
+import axios from "axios";
 
 const Product = () => {
-     const [products, setProducts] = useState(initialProducts);
+     const [products, setProducts] = useState([]);
      const [isModalOpen, setIsModalOpen] = useState(false);
      const navigate = useNavigate();
 
-     const handleDelete = (id) => {
-          setProducts(products.filter((p) => p.id !== id));
+     const fetchProducts = async () => {
+          try {
+               const token = sessionStorage.getItem("accessToken");
+
+               const res = await axios.get("http://localhost:8080/api/products", {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               });
+               setProducts(res.data);
+          } catch (err) {
+               console.error("Error fetching products", err);
+          }
      };
 
-     const handleAddProduct = (newProduct) => {
-          const id = products.length ? products[products.length - 1].id + 1 : 1;
-          setProducts([...products, { ...newProduct, id }]);
+     const handleDelete = async (id) => {
+          try {
+               const token = sessionStorage.getItem("accessToken");
+
+               await axios.delete(`http://localhost:8080/api/products/${id}`, {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               });
+               setProducts(products.filter((p) => p.id !== id));
+          } catch (err) {
+               console.error("Error deleting product", err);
+          }
      };
+
+     const handleAddProduct = async (newProduct) => {
+          try {
+               const token = sessionStorage.getItem("accessToken");
+
+               const res = await axios.post("http://localhost:8080/api/products", newProduct, {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+               });
+               setProducts([...products, res.data]);
+          } catch (err) {
+               console.error("Error adding product", err);
+          }
+     };
+
+     useEffect(() => {
+          fetchProducts();
+     }, []);
 
      return (
           <div className="p-6">

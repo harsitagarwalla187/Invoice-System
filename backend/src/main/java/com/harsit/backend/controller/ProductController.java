@@ -21,25 +21,17 @@ public class ProductController {
     @Autowired private JwtService jwtService;
     @Autowired private HttpServletRequest request;
 
-    private Company getCurrentCompany() {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            String email = jwtService.extractEmail(token);
-            return companyService.getCompanyByEmail(email);
-        }
-        return null;
-    }
-
     @PostMapping
-    public Product addProduct(@RequestBody Product product) {
-        Company company = getCurrentCompany();
+    public Product addProduct(@RequestBody Product product, @RequestHeader("Authorization") String token) {
+        String email = jwtService.extractEmail((token.substring(7)));
+        Company company = companyService.getCompanyByEmail(email);
         return productService.addProduct(product, company);
     }
 
     @GetMapping
     public List<Product> getAllProducts(@RequestHeader("Authorization") String token) {
-        Company company = getCurrentCompany();
+        String email = jwtService.extractEmail((token.substring(7)));
+        Company company = companyService.getCompanyByEmail(email);
         return productService.getAllProducts(company);
     }
 
