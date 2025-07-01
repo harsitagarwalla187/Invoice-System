@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findByCompany(Company company);
+    Invoice findByIdAndCompany(Long id, Company company);
 }

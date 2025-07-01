@@ -1,15 +1,14 @@
 package com.harsit.backend.controller;
 
 import com.harsit.backend.model.*;
+import com.harsit.backend.security.JwtService;
 import com.harsit.backend.service.*;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.OutputStream;
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/invoices")
@@ -18,58 +17,50 @@ public class InvoiceController {
     @Autowired private InvoiceService invoiceService;
     @Autowired private CustomerService customerService;
     @Autowired private ProductService productService;
+    @Autowired private CompanyService companyService;
+    @Autowired private JwtService jwtService;
 
-    // 1️⃣ Create Invoice
-    @PostMapping
-    public ResponseEntity<?> createInvoice(@RequestBody Invoice invoice, @RequestAttribute("company") Company company) {
-
-        // ✅ Fetch and set existing customer
-        Customer existingCustomer = customerService.getCustomerById(invoice.getCustomer().getId());
-        invoice.setCustomer(existingCustomer);
-
-        // ✅ Set invoice date (if not already set)
-        if (invoice.getDate() == null) {
-            invoice.setDate(LocalDate.now());
-        }
-
-        // ✅ Fetch existing products and compute totals
-        for (InvoiceItem item : invoice.getItems()) {
-            Product existingProduct = productService.getProductById(item.getProduct().getId());
-            item.setProduct(existingProduct);
-            item.setTotal(item.getQuantity() * item.getPrice());
-            item.setInvoice(invoice); // important!
-        }
-
-        Invoice savedInvoice = invoiceService.createInvoice(invoice, company);
-        return new ResponseEntity<>(savedInvoice, HttpStatus.CREATED);
-    }
-
-    // 2️⃣ Get All Invoices for a Company
     @GetMapping
-    public ResponseEntity<List<Invoice>> getAllInvoices(@RequestAttribute("company") Company company) {
+    public List<Invoice> getAllInvoices(@RequestHeader("Authorization") String token) {
+        String email = jwtService.extractEmail(token.substring(7));
+        Company company = companyService.getCompanyByEmail(email);
         List<Invoice> invoices = invoiceService.getAllInvoices(company);
-        return ResponseEntity.ok(invoices);
+        System.out.println(invoices);
+        return invoices;
     }
 
-    // 3️⃣ Get Invoice by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Invoice> getInvoiceById(@PathVariable Long id) {
-        Invoice invoice = invoiceService.getInvoiceById(id);
+    @PostMapping
+    public ResponseEntity<Invoice> createInvoice(
+            @RequestBody Map<String, Object> request,
+            @RequestHeader("Authorization") String token) {
+
+        String email = jwtService.extractEmail(token.substring(7));
+        Company company = companyService.getCompanyByEmail(email);
+
+        Long customerId = Long.valueOf(request.get("customerId").toString());
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
+
+        Invoice invoice = invoiceService.createInvoice(company, customerId, items);
         return ResponseEntity.ok(invoice);
     }
 
-    // 4️⃣ Download Invoice PDF
     @GetMapping("/{id}/pdf")
-    public void downloadInvoicePdf(@PathVariable Long id, HttpServletResponse response) {
-        byte[] pdfBytes = invoiceService.generateInvoicePdf(id);
+    public ResponseEntity<byte[]> downloadInvoicePDF(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        String email = jwtService.extractEmail(token.substring(7));
+        Company company = companyService.getCompanyByEmail(email);
 
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=invoice_" + id + ".pdf");
+        byte[] pdfBytes = invoiceService.generateInvoicePdf(id, company);
 
-        try (OutputStream out = response.getOutputStream()) {
-            out.write(pdfBytes);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to download invoice PDF", e);
-        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition
+                .builder("attachment")
+                .filename("invoice_" + id + ".pdf")
+                .build());
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
+
 }

@@ -1,25 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const initialInvoices = [
-     { id: 101, customerName: "Aman Sharma", date: "2024-06-01" },
-     { id: 102, customerName: "Riya Verma", date: "2024-06-05" },
-];
+import axios from "axios";
 
 const InvoiceList = () => {
-     const [invoices, setInvoices] = useState(initialInvoices);
+     const [invoices, setInvoices] = useState([]);
      const navigate = useNavigate();
 
+     useEffect(() => {
+          const fetchInvoices = async () => {
+               try {
+                    const token = sessionStorage.getItem("accessToken");
+                    const response = await axios.get("http://localhost:8080/api/invoices", {
+                         headers: {
+                              Authorization: `Bearer ${token}`
+                         }
+                    });
+
+                    setInvoices(response.data);
+               } catch (error) {
+                    console.error("Failed to fetch invoices:", error);
+               }
+          };
+
+          fetchInvoices();
+     }, []);
+
      const handleAddInvoice = () => {
-          // You can navigate to an 'Add Invoice' page if needed
-          // alert("Redirect to add invoice form or show form inline.");
-          navigate("/newinvoice")
+          navigate("/dashboard/newinvoice");
      };
 
-     const handleDownloadPDF = (invoice) => {
-          alert(`Downloading PDF for Invoice #${invoice.id}`);
-          // Replace with jsPDF or backend API call
+     const handleDownloadPDF = async (invoiceId) => {
+          const token = sessionStorage.getItem("accessToken");
+
+          try {
+               const response = await axios.get(`http://localhost:8080/api/invoices/${invoiceId}/pdf`, {
+                    headers: {
+                         Authorization: `Bearer ${token}`,
+                    },
+                    responseType: "blob", // Important!
+               });
+
+               const url = window.URL.createObjectURL(new Blob([response.data]));
+               const link = document.createElement("a");
+               link.href = url;
+               link.setAttribute("download", `invoice_${invoiceId}.pdf`);
+               document.body.appendChild(link);
+               link.click();
+               link.remove();
+          } catch (error) {
+               console.error("PDF download failed:", error);
+          }
      };
+
 
      return (
           <div className="p-6">
@@ -58,15 +90,16 @@ const InvoiceList = () => {
                               {invoices.map((invoice) => (
                                    <tr key={invoice.id} className="border-t">
                                         <td className="py-2 px-4">#{invoice.id}</td>
-                                        <td className="py-2 px-4">{invoice.customerName}</td>
+                                        <td className="py-2 px-4">{invoice.customer.name}</td>
                                         <td className="py-2 px-4">{invoice.date}</td>
                                         <td className="py-2 px-4">
                                              <button
-                                                  onClick={() => handleDownloadPDF(invoice)}
+                                                  onClick={() => handleDownloadPDF(invoice.id)}
                                                   className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                                              >
                                                   Download PDF
                                              </button>
+
                                         </td>
                                    </tr>
                               ))}

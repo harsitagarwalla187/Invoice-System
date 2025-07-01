@@ -1,5 +1,6 @@
 package com.harsit.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,14 +11,15 @@ public class InvoiceItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    private Invoice invoice;
-
-    @ManyToOne
-    private Product product;
-
     private Integer quantity;
     private Double price;
     private Double total;
+
+    @ManyToOne
+    @JsonIgnore
+    private Invoice invoice;
+
+    @ManyToOne
+    @JsonIgnore
+    private Product product;
 }
