@@ -1,35 +1,76 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Profile = () => {
      const [formData, setFormData] = useState({
-          name: "Company Name",
-          address: "Company Address",
-          email: "company@gmail.com",
-          phone: "9876543210",
+          name: "",
+          address: "",
+          email: "",
+          contact: "", // changed from contact → contact
      });
 
+     const [originalData, setOriginalData] = useState({});
      const [isEditing, setIsEditing] = useState(false);
+     const [loading, setLoading] = useState(true);
+
+     useEffect(() => {
+          const fetchProfile = async () => {
+               try {
+                    const res = await axios.get("http://localhost:8080/api/company/profile", {
+                         headers: {
+                              Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                         },
+                    });
+                    console.log(res.data);
+
+                    setFormData(res.data);
+                    setOriginalData(res.data); // backup for cancel
+                    setLoading(false);
+               } catch (error) {
+                    console.error("Failed to fetch profile:", error);
+               }
+          };
+
+          fetchProfile();
+     }, []);
 
      const handleChange = (e) => {
           setFormData({ ...formData, [e.target.name]: e.target.value });
      };
 
      const handleEditToggle = () => {
-          setIsEditing(true); // allow fields to be editable
+          console.log("Editing mode toggled");
+
+          setIsEditing(true);
      };
 
-     const handleSubmit = (e) => {
+     const handleCancel = () => {
+          setFormData(originalData);
+          setIsEditing(false);
+     };
+
+     const handleSubmit = async (e) => {
           e.preventDefault();
-          console.log("Updated data:", formData);
+          console.log("Submitting profile update", formData);
 
-          // Optional: make API call to save data
-          // await axios.post('/api/update-profile', formData);
-
-          setIsEditing(false); // turn off edit mode after save
+          try {
+               const res = await axios.put("http://localhost:8080/api/company/profile", formData, {
+                    headers: {
+                         Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                    },
+               });
+               setFormData(res.data);
+               setOriginalData(res.data); // update backup
+               setIsEditing(false);
+          } catch (error) {
+               console.error("Failed to update profile:", error);
+          }
      };
+
+     if (loading) return <p className="p-4">Loading profile...</p>;
 
      return (
-          <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-md">
+          <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-md max-w-lg mx-auto">
                <div>
                     <label className="block mb-1 text-neutral">Name</label>
                     <input
@@ -62,10 +103,8 @@ const Profile = () => {
                          type="email"
                          name="email"
                          value={formData.email}
-                         onChange={handleChange}
-                         disabled={!isEditing}
-                         className={`w-full px-4 py-2 border rounded-md text-neutral ${isEditing ? "bg-white" : "bg-gray-200"
-                              }`}
+                         disabled
+                         className="w-full px-4 py-2 border rounded-md bg-gray-200 text-neutral"
                     />
                </div>
 
@@ -73,8 +112,8 @@ const Profile = () => {
                     <label className="block mb-1 text-neutral">Phone Number</label>
                     <input
                          type="tel"
-                         name="phone"
-                         value={formData.phone}
+                         name="contact"
+                         value={formData.contact}
                          onChange={handleChange}
                          disabled={!isEditing}
                          pattern="[0-9]{10}"
@@ -94,12 +133,22 @@ const Profile = () => {
                               Edit
                          </button>
                     ) : (
-                         <button
-                              type="submit"
-                              className="bg-green-600 text-white px-4 py-2 rounded"
-                         >
-                              Save
-                         </button>
+                         <>
+
+                              <button
+                                   type="button"
+                                   onClick={handleCancel}
+                                   className="bg-red-500 text-white px-4 py-2 rounded"
+                              >
+                                   Cancel
+                              </button>
+                              <button
+                                   type="submit"
+                                   className="bg-green-600 text-white px-4 py-2 rounded"
+                              >
+                                   Save
+                              </button>
+                         </>
                     )}
                </div>
           </form>
