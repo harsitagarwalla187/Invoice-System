@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductModal from "./ProductModal";
-import axios from "axios";
+import api from "../../api/axios";
 
 const Product = () => {
      const [products, setProducts] = useState([]);
@@ -12,7 +12,7 @@ const Product = () => {
           try {
                const token = sessionStorage.getItem("accessToken");
 
-               const res = await axios.get("http://localhost:8080/api/products", {
+               const res = await api.get("/api/products", {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
@@ -27,7 +27,7 @@ const Product = () => {
           try {
                const token = sessionStorage.getItem("accessToken");
 
-               await axios.delete(`http://localhost:8080/api/products/${id}`, {
+               await api.delete(`/api/products/${id}`, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
@@ -42,7 +42,7 @@ const Product = () => {
           try {
                const token = sessionStorage.getItem("accessToken");
 
-               const res = await axios.post("http://localhost:8080/api/products", newProduct, {
+               const res = await api.post("/api/products", newProduct, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },

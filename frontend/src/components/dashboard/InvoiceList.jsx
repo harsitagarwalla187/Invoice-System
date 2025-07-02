@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/axios";
 
 const InvoiceList = () => {
      const [invoices, setInvoices] = useState([]);
@@ -10,7 +10,7 @@ const InvoiceList = () => {
           const fetchInvoices = async () => {
                try {
                     const token = sessionStorage.getItem("accessToken");
-                    const response = await axios.get("http://localhost:8080/api/invoices", {
+                    const response = await api.get("/api/invoices", {
                          headers: {
                               Authorization: `Bearer ${token}`
                          }
@@ -33,11 +33,11 @@ const InvoiceList = () => {
           const token = sessionStorage.getItem("accessToken");
 
           try {
-               const response = await axios.get(`http://localhost:8080/api/invoices/${invoiceId}/pdf`, {
+               const response = await api.get(`/api/invoices/${invoiceId}/pdf`, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
-                    responseType: "blob", // Important!
+                    responseType: "blob",
                });
 
                const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -55,7 +55,6 @@ const InvoiceList = () => {
 
      return (
           <div className="p-6">
-               {/* Header with Back and Add buttons */}
                <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                          <button
@@ -75,7 +74,6 @@ const InvoiceList = () => {
                     </button>
                </div>
 
-               {/* Invoice Table */}
                <div className="overflow-x-auto">
                     <table className="min-w-full bg-white shadow-md rounded-lg text-neutral">
                          <thead className="bg-gray-200">

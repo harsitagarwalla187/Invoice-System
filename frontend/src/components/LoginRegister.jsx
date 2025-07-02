@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 function LoginRegister() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,14 +13,12 @@ function LoginRegister() {
     const password = form.password.value;
 
     if (isLogin) {
-      // LOGIN
       try {
-        const res = await axios.post("http://localhost:8080/api/auth/login", {
+        const res = await api.post("/api/auth/login", {
           email,
           password,
         });
 
-        // Save token
         sessionStorage.setItem("accessToken", res.data.token);
         navigate("/dashboard");
       } catch (err) {
@@ -28,20 +26,18 @@ function LoginRegister() {
         alert("Login failed.");
       }
     } else {
-      // REGISTER
       const name = form.name.value;
 
       console.log(name);
-      
+
 
       try {
-        await axios.post("http://localhost:8080/api/auth/register", {
+        await api.post("/api/auth/register", {
           name,
           email,
           password,
         });
 
-        // Auto-switch to login mode after register
         setIsLogin(true);
         alert("Registration successful. Please login.");
       } catch (err) {

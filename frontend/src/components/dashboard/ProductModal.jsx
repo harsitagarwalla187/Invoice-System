@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const ProductModal = ({ isOpen, onClose, onAdd }) => {
      const [formData, setFormData] = useState({

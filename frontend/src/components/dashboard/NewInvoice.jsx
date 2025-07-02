@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import api from "../../api/axios"
 
 const NewInvoice = () => {
      const [customers, setCustomers] = useState([]);
@@ -12,12 +12,12 @@ const NewInvoice = () => {
                try {
                     const token = sessionStorage.getItem("accessToken");
 
-                    const customerRes = await axios.get("http://localhost:8080/api/customers", {
+                    const customerRes = await api.get("/api/customers", {
                          headers: { Authorization: `Bearer ${token}` }
                     });
                     setCustomers(customerRes.data);
 
-                    const productRes = await axios.get("http://localhost:8080/api/products", {
+                    const productRes = await api.get("/api/products", {
                          headers: { Authorization: `Bearer ${token}` }
                     });
                     setProducts(productRes.data);
@@ -57,7 +57,7 @@ const NewInvoice = () => {
      const handleSubmit = async () => {
           try {
                const token = sessionStorage.getItem("accessToken");
-               
+
                const payload = {
                     customerId: selectedCustomerId,
                     items: selectedProducts.map(item => ({
@@ -67,17 +67,16 @@ const NewInvoice = () => {
                };
                console.log("Invoice created successfully:", payload);
 
-               await axios.post("http://localhost:8080/api/invoices", payload, {
+               await api.post("/api/invoices", payload, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                          "Content-Type": "application/json"
                     }
                });
 
-               
+
 
                alert("Invoice created successfully!");
-               // Optional: Redirect or reset state
           } catch (error) {
                console.error("Failed to create invoice:", error);
                alert("Error creating invoice.");

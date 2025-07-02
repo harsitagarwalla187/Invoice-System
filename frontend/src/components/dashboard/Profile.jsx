@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api/axios";
 
 const Profile = () => {
      const [formData, setFormData] = useState({
           name: "",
           address: "",
           email: "",
-          contact: "", // changed from contact → contact
+          contact: "",
      });
 
      const [originalData, setOriginalData] = useState({});
@@ -16,7 +16,7 @@ const Profile = () => {
      useEffect(() => {
           const fetchProfile = async () => {
                try {
-                    const res = await axios.get("http://localhost:8080/api/company/profile", {
+                    const res = await api.get("/api/company/profile", {
                          headers: {
                               Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
                          },
@@ -24,7 +24,7 @@ const Profile = () => {
                     console.log(res.data);
 
                     setFormData(res.data);
-                    setOriginalData(res.data); // backup for cancel
+                    setOriginalData(res.data);
                     setLoading(false);
                } catch (error) {
                     console.error("Failed to fetch profile:", error);
@@ -54,13 +54,13 @@ const Profile = () => {
           console.log("Submitting profile update", formData);
 
           try {
-               const res = await axios.put("http://localhost:8080/api/company/profile", formData, {
+               const res = await api.put("/api/company/profile", formData, {
                     headers: {
                          Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
                     },
                });
                setFormData(res.data);
-               setOriginalData(res.data); // update backup
+               setOriginalData(res.data); 
                setIsEditing(false);
           } catch (error) {
                console.error("Failed to update profile:", error);
