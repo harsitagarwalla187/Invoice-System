@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
+import api from "../../api/axios"
 
 const CustomerModal = ({ isOpen, onClose, onAdd }) => {
      const [formData, setFormData] = useState({
@@ -23,8 +23,8 @@ const CustomerModal = ({ isOpen, onClose, onAdd }) => {
           try {
                const token = sessionStorage.getItem("accessToken");
 
-               const response = await axios.post(
-                    "http://localhost:8080/api/customers",
+               const response = await api.post(
+                    "/api/customers",
                     formData,
                     {
                          headers: {
@@ -39,7 +39,6 @@ const CustomerModal = ({ isOpen, onClose, onAdd }) => {
                setFormData({ name: "", email: "", contact: "", address: "" });
           } catch (error) {
                console.error("Error adding customer:", error);
-               alert("Failed to save customer. Check your authentication or backend.");
           }
      };
 

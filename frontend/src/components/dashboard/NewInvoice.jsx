@@ -73,9 +73,6 @@ const NewInvoice = () => {
                          "Content-Type": "application/json"
                     }
                });
-
-
-
                alert("Invoice created successfully!");
           } catch (error) {
                console.error("Failed to create invoice:", error);
@@ -91,7 +88,7 @@ const NewInvoice = () => {
                <div className="mb-6">
                     <label className="block font-semibold mb-2">Select Customer:</label>
                     <select
-                         className="w-full border p-2 rounded"
+                         className="w-full border p-2 rounded bg-grey-200"
                          value={selectedCustomerId}
                          onChange={(e) => setSelectedCustomerId(e.target.value)}
                     >

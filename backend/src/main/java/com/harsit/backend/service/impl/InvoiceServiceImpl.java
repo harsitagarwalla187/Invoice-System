@@ -110,20 +110,17 @@ public class InvoiceServiceImpl implements InvoiceService {
             document.add(title);
             document.add(new Paragraph(" "));
 
-            // Company Info
             document.add(new Paragraph("Company: " + invoice.getCompany().getName(), bodyFont));
             document.add(new Paragraph("Email: " + invoice.getCompany().getEmail(), bodyFont));
             document.add(new Paragraph("Invoice #: " + invoice.getId(), bodyFont));
             document.add(new Paragraph("Date: " + invoice.getDate(), bodyFont));
             document.add(new Paragraph(" "));
 
-            // Customer Info
             document.add(new Paragraph("Customer: " + invoice.getCustomer().getName(), bodyFont));
             document.add(new Paragraph("Email: " + invoice.getCustomer().getEmail(), bodyFont));
             document.add(new Paragraph("Contact: " + invoice.getCustomer().getContact(), bodyFont));
             document.add(new Paragraph(" "));
 
-            // Invoice Table
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
             table.setWidths(new float[]{4, 1, 2, 2});

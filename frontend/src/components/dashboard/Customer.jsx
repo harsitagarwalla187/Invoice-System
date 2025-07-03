@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CustomerModal from "./CutomerModal";
-import axios from "axios";
+import CustomerModal from "./CustomerModal";
+import api from "../../api/axios"
 
 const Customer = () => {
      const [customers, setCustomers] = useState([]);
      const [isModalOpen, setIsModalOpen] = useState(false);
      const navigate = useNavigate();
 
-     // 🔁 Fetch customers on component mount
      useEffect(() => {
           const fetchCustomers = async () => {
                try {
                     const token = sessionStorage.getItem("accessToken");
 
-                    const response = await axios.get("http://localhost:8080/api/customers", {
+                    const response = await api.get("/api/customers", {
                          headers: {
                               Authorization: `Bearer ${token}`,
                          },
@@ -24,7 +23,6 @@ const Customer = () => {
                     setCustomers(response.data);
                } catch (error) {
                     console.error("Failed to fetch customers:", error);
-                    // alert("Failed to load customers.");
                }
           };
 
@@ -35,7 +33,7 @@ const Customer = () => {
           try {
                const token = sessionStorage.getItem("accessToken");
 
-               await axios.delete(`http://localhost:8080/api/customers/${id}`, {
+               await api.delete(`/api/customers/${id}`, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
@@ -44,7 +42,6 @@ const Customer = () => {
                setCustomers((prev) => prev.filter((c) => c.id !== id));
           } catch (err) {
                console.error("Delete failed", err);
-               // alert("Failed to delete customer.");
           }
      };
 
@@ -52,7 +49,7 @@ const Customer = () => {
           try {
                const token = sessionStorage.getItem("accessToken");
 
-               const response = await axios.post("http://localhost:8080/api/customers", newCustomer, {
+               const response = await api.post("/api/customers", newCustomer, {
                     headers: {
                          Authorization: `Bearer ${token}`,
                     },
@@ -63,7 +60,6 @@ const Customer = () => {
                setIsModalOpen(false);
           } catch (error) {
                console.error("Failed to add customer:", error);
-               // alert("Failed to add customer.");
           }
      };
 
