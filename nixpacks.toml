@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["openjdk17", "maven"]
+
+[phases.build]
+cmds = [
+    "cd backend && mvn clean package -DskipTests",
+    "cp backend/target/InvoiceSystem.jar ."
+]
+
+[start]
+cmd = "java -jar InvoiceSystem.jar"
